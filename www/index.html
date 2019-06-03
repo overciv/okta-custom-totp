@@ -1,0 +1,420 @@
+<html>
+	<head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.3.1/sha.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+        <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+		<script type="text/javascript" src="cordova.js"></script>
+        <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-auth-js/2.0.1/okta-auth-js.min.js" type="text/javascript"></script>
+        <style>
+			.bottom {
+			  position: fixed;
+			  left: 0;
+			  bottom: 0;
+			  width: 100%;
+			  text-align: center;	
+			  font-size: 70%			
+			}
+
+        	.nav {
+        		display: none;
+        	}
+
+        	h1 {
+        		font-size: 150%;
+        		margin-bottom: 50px;
+        	}
+
+        	h1, body {
+        		font-family: 'Lora';
+        		margin-left: 0;
+        		margin-right: 0;
+        		margin-top: 30px;
+        	}
+
+        	body {
+        		margin-left: 30vw-100px;
+        	}
+
+        	input[type="button"], .navButton {
+        		font-family: 'Lora';
+        		width: 20vw;
+        		line-height: 30px;
+				margin-top: 10px;
+				margin-bottom: 10px;
+        		background-color: #00CD76;
+        		border-radius: 0px;
+        		box-shadow: 0px;
+        		color: #fff;
+        		border-style: solid;
+        		border-width: 1px;
+        		border-color: #000;
+        		font-size: 100%;
+        	}
+
+        	a {
+        		text-decoration: none;
+        		color: #00CD76;
+        	}
+
+        	input.newSecret {
+        		line-height: 31px;
+				margin-top: 11px;
+				margin-bottom: 10px;
+        		border-style: solid;
+        		background-color: #fff;
+        		border-radius: 0px;
+        		box-shadow: 0px;
+        		color: #00CD76;
+        		border-style: solid;
+        		border-width: 1px;
+        	}
+
+        	.otp {
+        		color: #00CD76;
+        	}
+
+			.progress-bar {
+				margin-top: 10px;
+				margin-bottom: 10px;
+			    width: calc(100% - 6px);
+			    height: 10px;
+			    background: #fff;
+			    padding: 3px;
+			    border-radius: 3px;
+			    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+			}
+
+			.progress-bar-fill {
+			    display: block;
+			    height: 10px;
+			    background: #00CD76;
+			    border-radius: 3px;
+			    /*transition: width 250ms ease-in-out;*/
+			    transition: width 1s ease-in-out;
+			}        	
+        </style>
+		<script>
+			if(localStorage.getItem("LocalData") == null)
+			{
+			    var data = [];
+			    data = JSON.stringify(data);
+			    localStorage.setItem("LocalData", data);
+			}
+
+			function getParameterByName( name, url ) {
+				name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+				var regexS = "[\\#?&]"+name+"=([^&#]*)";
+				var regex = new RegExp( regexS );
+				var results = regex.exec( url );
+				if( results == null )
+					return "";
+				else
+					return decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+
+			function scan()
+			{
+			    cordova.plugins.barcodeScanner.scan(
+			        function (result) {
+			            if(!result.cancelled)
+			            {
+			                if(result.format == "QR_CODE")
+			            	var scannedSecret = getParameterByName('secret', result.text);
+			                localStorage.setItem('secret', scannedSecret);
+			            	$("#qr").text(scannedSecret)
+			            	$(".newSecret").val(scannedSecret);
+							startAuthenticator()
+			            }
+			        },
+			        function (error) {
+			            alert("Scanning failed: " + error);
+			        }
+			   )
+			}
+
+
+
+			function dec2hex(s) { return (s < 15.5 ? '0' : '') + Math.round(s).toString(16); }
+			    function hex2dec(s) { return parseInt(s, 16); }
+
+			    function base32tohex(base32) {
+			        var base32chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+			        var bits = "";
+			        var hex = "";
+
+			        for (var i = 0; i < base32.length; i++) {
+			            var val = base32chars.indexOf(base32.charAt(i).toUpperCase());
+			            bits += leftpad(val.toString(2), 5, '0');
+			        }
+
+			        for (var i = 0; i+4 <= bits.length; i+=4) {
+			            var chunk = bits.substr(i, 4);
+			            hex = hex + parseInt(chunk, 2).toString(16) ;
+			        }
+			        return hex;
+
+			    }
+
+			    function leftpad(str, len, pad) {
+			        if (len + 1 >= str.length) {
+			            str = Array(len + 1 - str.length).join(pad) + str;
+			        }
+			        return str;
+			    }
+
+			    function updateOtp() {
+			            
+			        var key = base32tohex($('.newSecret').val());
+			        var epoch = Math.round(new Date().getTime() / 1000.0);
+			        var time = leftpad(dec2hex(Math.floor(epoch / 30)), 16, '0');
+
+			        console.log('debug:' + key);
+			        console.log('debug:' + epoch);
+			        console.log('debug:' + time);
+
+			        // updated for jsSHA v2.0.0 - http://caligatio.github.io/jsSHA/
+			        var shaObj = new jsSHA("SHA-1", "HEX");
+			        shaObj.setHMACKey(key, "HEX");
+			        shaObj.update(time);
+			        var hmac = shaObj.getHMAC("HEX");
+
+			        var user = 'Okta: mark.maf@okta-demo.nl'
+			        $('#qrImg').attr('src', 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/'+ user +'%3Fsecret%3D' + $('#secret').val());
+			        $('#secretHex').text(key);
+			        $('#secretHexLength').text((key.length * 4) + ' bits'); 
+			        $('#epoch').text(time);
+			        $('#hmac').empty();
+
+			        if (hmac == 'KEY MUST BE IN BYTE INCREMENTS') {
+			            $('#hmac').append($('<span/>').addClass('label important').append(hmac));
+			        } else {
+			            var offset = hex2dec(hmac.substring(hmac.length - 1));
+			            var part1 = hmac.substr(0, offset * 2);
+			            var part2 = hmac.substr(offset * 2, 8);
+			            var part3 = hmac.substr(offset * 2 + 8, hmac.length - offset);
+			            if (part1.length > 0 ) $('#hmac').append($('<span/>').addClass('label label-default').append(part1));
+			            $('#hmac').append($('<span/>').addClass('label label-primary').append(part2));
+			            if (part3.length > 0) $('#hmac').append($('<span/>').addClass('label label-default').append(part3));
+			        }
+
+			        var otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec('7fffffff')) + '';
+			        otp = (otp).substr(otp.length - 6, 6);
+
+			        $('#otp').text(otp);
+			    }
+
+			function timer()
+			{
+			    var epoch = Math.round(new Date().getTime() / 1000.0);
+			    var countDown = 30 - (epoch % 30);
+			    if (epoch % 30 == 0) updateOtp();
+			    $('#updatingIn').text(countDown);
+			    var percentage = countDown * (100/30);
+			    percentage = Math.round(percentage)
+			    percentage = 100 - percentage
+			    //console.log(percentage);
+			    $(".progress-bar-fill").attr('style', 'width: '+ percentage +'%');
+			    
+			}
+
+			function startAuthenticator() {
+			        var secret = $(".newSecret").val();
+			        if (secret) {
+				        updateOtp();
+
+				        $('#update').click(function (event) {
+				            updateOtp();
+				            event.preventDefault();
+				        });
+
+				        $('#secret').keyup(function () {
+				            updateOtp();
+				        });
+				        
+				        setInterval(timer, 1000);
+			  			$(".page").hide();
+			  			$("#pag_otp").show();
+
+			        } else {
+			        	alert('invalid secret')
+			        }
+
+			};
+
+			
+		</script>
+	</head>
+	<body>
+		<center>
+			<img src="logo.png">
+			<div class="container-fluid">
+			<h1 id="lbl_title">{ custom authenticator }</h1>
+			<div id="pag_secret" class="page">
+				<input type="text" size="30" name="secret" id="secret" class="xlarge newSecret" value="" /><br>
+				<a class="storeSecret" href="#">save secret</a> or <a class="resetSecret" href="#">reset app</a>
+			</div>
+			<div id="pag_otp" class="page">
+				<div class="clearfix" class="timer">
+					<label></label>
+					<div class="input"><span id='updatingIn' style="font-size: 150%">&nbsp;</span></div>
+					</div>
+				<div class="progress-bar">
+					<span class="progress-bar-fill" style="width: 100%"></span>
+				</div>
+				<label>One-time Password</label>
+				<div class="input otp"><span class="label label-primary" style="font-size: 300%" id='otp'></span></div>
+			</div>
+			<div id="pag_scan" class="page">
+				<label>Please click to scan the QR and connect the app to your account</label>
+				<div class="scanSecret navButton" type="button">scan qr</div>
+                
+                <p>Or authenticate below for auto-enrollment</p>
+                <label>Username</label>
+                <input type="text" size="30" name="username" id="username" class="xlarge newSecret" value="" /><br>
+                <label>Password</label>
+                <input type="password" size="30" name="password" id="password" class="xlarge newSecret" value="" /><br>
+                <div class="autoEnroll navButton" type="button">Enroll</div>
+			</div>
+			<div id="pag_config" class="page">
+				<label>Secret (hex)</label>
+				<div class="input"><span class="label label-default" id="secretHex"></span><span id='secretHexLength'></span></div>
+				<label>QR Code</label>
+				<div class="input"><img id="qrImg" src="" /></div>
+				<label>Unix epoch div 30 (padded hex)</label>
+				<div class="input"><span class="label label-default" id='epoch'></span></div>
+				<label>HMAC(secret, time)</label>
+				<div class="input" id='hmac'></div>
+				<label>Unix epoch div 30 (padded hex)</label>
+				<div class="input"><span class="label label-default" id='epoch'></span></div>
+			</div>
+            <p class="bottom">This app is created for Degroof Petercam by Okta (v 0.11)</p>
+		</center>
+	</body>
+	<script type="text/javascript">
+		$( document ).ready(function() {
+			console.log('document ready');
+			$(".page").hide();
+			var storedSecret = localStorage.getItem('secret')
+			if (storedSecret) {
+				console.log('a secret has been configured within the app');
+				$(".newSecret").val(storedSecret);
+				startAuthenticator();
+				$("#pag_otp").show();
+			} else {
+				console.log('the secret needs to be configured in the app');
+				$(".page").hide();
+				$("#pag_scan").show();
+			}
+		})
+		
+		$(".menuitem").click(function() {
+			var page = $( this ).attr('page');
+			$(".page").hide();
+			$("."+page).show();
+		})
+
+		$(".storeSecret").click(function(){
+			var newSecret = $(".newSecret").val();
+			console.log('storing new secret in app');
+			localStorage.setItem('secret', newSecret);
+			if (newSecret != '') {
+				startAuthenticator();
+			}
+		})
+
+		$("#lbl_title").click(function() {
+			$("#pag_secret").slideToggle();
+		});
+
+		$(".scanSecret").click(function() {
+			alert('This app will open your camera, please center the QR in the screen');
+			scan();
+		})
+
+		$(".resetSecret").click(function() {
+			$(".newSecret").val('');
+			$(".page").hide()
+			$("#pag_scan").show();
+
+		})
+        
+        var config = {
+               url: 'https://airbus.gaiacorp.co',
+               tokenManager: {
+                 storage: 'sessionStorage'
+               }
+             };
+        var authClient = new OktaAuth(config);
+
+        $(".autoEnroll").click(function() {
+            var settings = {
+              "async": true,
+              "crossDomain": true,
+              "url": "https://airbus.gaiacorp.co/api/v1/authn",
+              "method": "POST",
+              "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "cache-control": "no-cache",
+              },
+              "processData": false,
+              "data": "{\n  \"username\": \""+$("#username").val()+"\",\n  \"password\": \""+$("#password").val()+"\",\n  \"options\": {\n    \"multiOptionalFactorEnroll\": false,\n    \"warnBeforePasswordExpired\": false\n  }\n}"
+            }
+            
+            $.ajax(settings).done(function (response) {
+              console.log(response);
+              autoEnroll(response.stateToken);
+            }); 
+        })
+
+    function autoEnroll(token) {
+        var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": "https://airbus.gaiacorp.co/api/v1/authn/factors",
+          "method": "POST",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "cache-control": "no-cache"
+          },
+          "processData": false,
+          "data": "{\n  \"stateToken\" : \""+token+"\",\n  \"factorType\": \"token:software:totp\",\n  \"provider\": \"OKTA\"\n}"
+        }
+        
+        $.ajax(settings).done(function (response) {
+          console.log(response);
+          var newSecret = response._embedded.factor._embedded.activation.sharedSecret;
+          console.log('storing new secret in app');
+          localStorage.setItem('secret', newSecret);
+          if (newSecret != '') {
+              $(".newSecret").val(newSecret);
+              updateOtp();
+              autoActivate(token,$('#otp').text());
+          }
+        });
+    }
+
+    function autoActivate(token,code) {
+        var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": "https://airbus.gaiacorp.co/api/v1/authn/factors/ost52zdulK9WsBACP0x6/lifecycle/activate",
+          "method": "POST",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "cache-control": "no-cache"
+          },
+          "processData": false,
+          "data": "{\n  \"stateToken\": \""+token+"\",\n  \"passCode\": \""+code+"\"\n}"
+        }
+        
+        $.ajax(settings).done(function (response) {
+          startAuthenticator(); 
+        });
+    }
+
+	</script>
+</html>
