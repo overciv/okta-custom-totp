@@ -3,6 +3,8 @@ This project is an example of using Okta APIs to create a custom TOTP factor on 
 
 ## Pre-requisites
 
+TODO
+
 ### Basic Setup
 
 Install Cordova
@@ -99,4 +101,3 @@ To fix it
 ```bash
 cordova run ios
 ```
-cd okta-custom-totp
