@@ -1,9 +1,14 @@
 # okta-custom-totp
-This project is an example of using Okta APIs to create a custom TOTP factor on smartphone. It include a registration flow without any QR code or shared secret to type.
+This project is an example of using Okta APIs to create a custom TOTP factor on smartphone. It include a registration flow without any QR code or shared secret to scan or type.
 
 ## Pre-requisites
 
-TODO
+To build the app for iOS:
+  - xcode
+  - Node.js (https://nodejs.org)
+
+To build the app for Android:
+  - TODO
 
 ### Basic Setup
 
