@@ -1,0 +1,11 @@
+{
+  "name": "Custom TOTP factor for iOS and Android",
+  "description": "This project is an example of using Okta APIs to create a custom TOTP factor on smartphone. It include a registration flow without any QR code or shared secret to type.",
+  "url": "https://github.com/overciv/okta-custom-totp",
+  "logo": "https://developer.okta.com/logo.png",
+  "categories": [
+    "authentication",
+    "mfa",
+    "api-authentication"
+  ]
+}
