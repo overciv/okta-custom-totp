@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hellototp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>TOTP Authenticator</name>
+<widget id="app.frankbenus.helloworld" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>DGP Authenticator</name>
     <description>
         This is a custom auth app from Okta
     </description>
@@ -8,35 +8,41 @@
         PhoneGap Team
     </author>
     <content src="index.html" />
+    <plugin name="phonegap-plugin-barcodescanner" source="npm" />
+    <plugin name="cordova-plugin-dialogs" source="npm" />
+    <plugin name="cordova-plugin-inappbrowser" source="npm" />
+    <plugin name="cordova-plugin-camera" source="npm" />
+    <plugin name="cordova.plugins.diagnostic" source="npm" />
     <feature name="Camera">
         <param name="ios-package" value="CDVCamera" />
     </feature>
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="14" />
+    <plugin name="cordova-universal-links-plugin" source="npm" />
     <universal-links>
-        <host name="booons.com">
-            <path url="/some/path/*" />
-        </host>
-        <host name="atkoflowers.com" />
+      <host name="booons.com">
+        <path url="/some/path/*" />
+      </host>
+      <host name="atkoflowers.com" />
     </universal-links>
     <platform name="ios">
-        <icon height="57" platform="ios" src="www/logo.png" width="57" />
-        <icon height="114" platform="ios" src="www/logo.png" width="114" />
-        <icon height="40" platform="ios" src="www/logo.png" width="40" />
-        <icon height="80" platform="ios" src="www/logo.png" width="80" />
-        <icon height="50" platform="ios" src="www/logo.png" width="50" />
-        <icon height="100" platform="ios" src="www/logo.png" width="100" />
-        <icon height="60" platform="ios" src="www/logo.png" width="60" />
-        <icon height="120" platform="ios" src="www/logo.png" width="120" />
-        <icon height="180" platform="ios" src="www/logo.png" width="180" />
-        <icon height="72" platform="ios" src="www/logo.png" width="72" />
-        <icon height="144" platform="ios" src="www/logo.png" width="144" />
-        <icon height="76" platform="ios" src="www/logo.png" width="76" />
-        <icon height="29" platform="ios" src="www/logo.png" width="29" />
-        <icon height="58" platform="ios" src="www/logo.png" width="58" />
-        <icon height="87" platform="ios" src="www/logo.png" width="87" />
-        <icon height="152" platform="ios" src="www/logo.png" width="152" />
-    <splash height="1136" platform="ios" src="www/res/screen/ios/Default-568h@2x~iphone.png" width="640" />
+        <icon height="57" platform="ios" src="logo.png" width="57" />
+        <icon height="114" platform="ios" src="logo.png" width="114" />
+        <icon height="40" platform="ios" src="logo.png" width="40" />
+        <icon height="80" platform="ios" src="logo.png" width="80" />
+        <icon height="50" platform="ios" src="logo.png" width="50" />
+        <icon height="100" platform="ios" src="logo.png" width="100" />
+        <icon height="60" platform="ios" src="logo.png" width="60" />
+        <icon height="120" platform="ios" src="logo.png" width="120" />
+        <icon height="180" platform="ios" src="logo.png" width="180" />
+        <icon height="72" platform="ios" src="logo.png" width="72" />
+        <icon height="144" platform="ios" src="logo.png" width="144" />
+        <icon height="76" platform="ios" src="logo.png" width="76" />
+        <icon height="152" platform="ios" src="www/res/icon/ios/icon-76@2x.png" width="152" />
+        <icon height="29" platform="ios" src="logo.png" width="29" />
+        <icon height="58" platform="ios" src="logo.png" width="58" />
+        <icon height="87" platform="ios" src="logo.png" width="87" />
+        <splash height="1136" platform="ios" src="www/res/screen/ios/Default-568h@2x~iphone.png" width="640" />
         <splash height="1334" platform="ios" src="www/res/screen/ios/Default-667h.png" width="750" />
         <splash height="2208" platform="ios" src="www/res/screen/ios/Default-736h.png" width="1242" />
         <splash height="1242" platform="ios" src="www/res/screen/ios/Default-Landscape-736h.png" width="2208" />
@@ -58,11 +64,4 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <plugin name="cordova-plugin-whitelist" spec="1" />
-    <plugin name="phonegap-plugin-barcodescanner" spec="~8.0.1" />
-    <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
-    <plugin name="cordova-plugin-inappbrowser" spec="~3.0.0" />
-    <plugin name="cordova-plugin-camera" spec="~4.0.3" />
-    <plugin name="cordova.plugins.diagnostic" spec="~4.0.12" />
-    <plugin name="cordova-universal-links-plugin" spec="~1.2.1" />
 </widget>
