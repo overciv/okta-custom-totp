@@ -48,6 +48,10 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
+    <platform name="android">
+         <allow-intent href="itms:*" />
+         <allow-intent href="itms-apps:*" />
+     </platform>
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="phonegap-plugin-barcodescanner" spec="~8.0.1" />
     <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
