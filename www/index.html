@@ -180,7 +180,7 @@
 			        shaObj.update(time);
 			        var hmac = shaObj.getHMAC("HEX");
 
-			        var user = 'Okta: mark.maf@okta-demo.nl'
+			        var user = 'Okta: okta@okta-demo.fr'
 			        $('#qrImg').attr('src', 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/'+ user +'%3Fsecret%3D' + $('#secret').val());
 			        $('#secretHex').text(key);
 			        $('#secretHexLength').text((key.length * 4) + ' bits'); 

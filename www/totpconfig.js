@@ -1,1 +1,1 @@
-var oktaurl = "https://airbus.gaiacorp.co";
+var oktaurl = "https://swisslife-b2c.okta.com";
