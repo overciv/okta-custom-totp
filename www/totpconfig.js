@@ -1,1 +1,1 @@
-var oktaurl = "https://swisslife-b2c.okta.com";
+var oktaurl = "https://myoktatenant.okta.com";
